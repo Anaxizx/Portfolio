@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ANAX — Developer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Orbitron:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #000000;
+    --bg-elevated: #0A0A0A;
+    --cyan: #FFFFFF;
+    --violet: #B8B8C8;
+    --text: #F5F5F5;
+    --text-dim: #808088;
+    --line: #1E1E22;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  ::selection { background: var(--cyan); color: #000; }
+
+  /* Focus visibility */
+  a:focus-visible, button:focus-visible {
+    outline: 2px solid var(--cyan);
+    outline-offset: 3px;
+  }
+
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 28px 6vw;
+    mix-blend-mode: difference;
+  }
+
+  .nav-name {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+    letter-spacing: 0.08em;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 32px;
+    font-size: 0.9rem;
+    color: var(--text);
+  }
+
+  .nav-links a { opacity: 0.75; transition: opacity 0.2s; }
+  .nav-links a:hover { opacity: 1; }
+
+  #bg-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    cursor: grab;
+  }
+  #bg-canvas:active { cursor: grabbing; }
+
+  #hero {
+    position: relative;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 0 6vw;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    pointer-events: none;
+    background: radial-gradient(ellipse at center, rgba(10,10,10,0.55) 0%, rgba(10,10,10,0.15) 60%, transparent 100%);
+    padding: 40px 20px;
+    border-radius: 50%;
+  }
+
+  .hero-eyebrow {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    margin-bottom: 18px;
+    font-weight: 500;
+  }
+
+  .hero-name {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    font-size: clamp(3rem, 11vw, 8rem);
+    line-height: 0.95;
+    letter-spacing: 0.04em;
+    background: linear-gradient(135deg, var(--text) 20%, var(--cyan) 55%, var(--violet) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 18px rgba(255,255,255,0.25));
+  }
+
+  .hero-sub {
+    margin-top: 20px;
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    color: var(--text-dim);
+  }
+
+  .hero-hint {
+    position: absolute;
+    bottom: 36px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .hero-hint-line {
+    width: 1px;
+    height: 28px;
+    background: linear-gradient(var(--text-dim), transparent);
+    animation: pulse-line 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-line {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+  }
+
+  section {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 140px 6vw;
+    position: relative;
+    z-index: 2;
+  }
+
+  #about, #skills, #projects, #contact {
+    background: rgba(10,10,10,0.72);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border-radius: 24px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+
+  .section-label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.9rem;
+    color: var(--cyan);
+    margin-bottom: 28px;
+    font-weight: 500;
+  }
+
+  #about p {
+    font-size: clamp(1.15rem, 2.4vw, 1.5rem);
+    line-height: 1.55;
+    color: var(--text);
+    font-weight: 400;
+  }
+
+  #skills .skill-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 8px;
+  }
+
+  .skill-pill {
+    border: 1px solid var(--line);
+    padding: 10px 18px;
+    border-radius: 100px;
+    font-size: 0.92rem;
+    color: var(--text-dim);
+    transition: border-color 0.25s, color 0.25s;
+  }
+
+  .skill-pill:hover {
+    border-color: var(--cyan);
+    color: var(--cyan);
+  }
+
+  .project {
+    border-top: 1px solid var(--line);
+    padding: 40px 0;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 24px;
+    transition: transform 0.25s;
+  }
+
+  .project:hover { transform: translateX(6px); }
+
+  #projects .project:last-child { border-bottom: 1px solid var(--line); }
+
+  .project-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 600;
+  }
+
+  .project-desc {
+    color: var(--text-dim);
+    font-size: 0.98rem;
+    line-height: 1.5;
+  }
+
+  .project-tech {
+    margin-top: 10px;
+    font-size: 0.82rem;
+    color: var(--violet);
+  }
+
+  #contact {
+    text-align: center;
+    padding-bottom: 180px;
+  }
+
+  .contact-email {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(1.6rem, 5vw, 3rem);
+    font-weight: 600;
+    display: inline-block;
+    margin-top: 8px;
+    border-bottom: 2px solid transparent;
+    transition: border-color 0.25s, color 0.25s;
+  }
+
+  .contact-email:hover {
+    color: var(--cyan);
+    border-color: var(--cyan);
+  }
+
+  .contact-social {
+    margin-top: 28px;
+  }
+
+  .contact-social a {
+    font-size: 0.95rem;
+    color: var(--text-dim);
+    border-bottom: 1px solid transparent;
+    transition: color 0.25s, border-color 0.25s;
+    padding-bottom: 2px;
+  }
+
+  .contact-social a:hover {
+    color: var(--cyan);
+    border-color: var(--cyan);
+  }
+
+  footer {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding: 40px 6vw 60px;
+    color: var(--text-dim);
+    font-size: 0.82rem;
+  }
+
+  @media (max-width: 640px) {
+    .project { grid-template-columns: 1fr; }
+    .nav-links { gap: 14px; font-size: 0.75rem; }
+    nav { padding: 20px 5vw; }
+    section { padding: 90px 6vw; }
+    .hero-name { font-size: clamp(2.5rem, 13vw, 4rem); }
+    .hero-sub { font-size: 0.95rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .hero-hint-line { animation: none; }
+    .project:hover { transform: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-name">ANAX</div>
+  <div class="nav-links">
+    <a href="#about">About</a>
+    <a href="#skills">Skills</a>
+    <a href="#projects">Projects</a>
+    <a href="#contact">Contact</a>
+  </div>
+</nav>
+
+<canvas id="bg-canvas"></canvas>
+
+<section id="hero">
+  <div class="hero-content">
+    <div class="hero-eyebrow">Developer</div>
+    <h1 class="hero-name">ANAX</h1>
+    <p class="hero-sub">Crafting clean, functional web experiences.</p>
+  </div>
+  <div class="hero-hint">
+    <span>drag to rotate · scroll to explore</span>
+    <span class="hero-hint-line"></span>
+  </div>
+</section>
+
+<section id="about">
+  <div class="section-label">About</div>
+  <p>I'm a developer focused on building clean, functional, and well-crafted digital experiences. I care about writing maintainable code and solving real problems through thoughtful design and engineering.</p>
+</section>
+
+<section id="skills">
+  <div class="section-label">Skills</div>
+  <div class="skill-grid">
+    <span class="skill-pill">HTML</span>
+    <span class="skill-pill">CSS</span>
+    <span class="skill-pill">JavaScript</span>
+  </div>
+</section>
+
+<section id="projects">
+  <div class="section-label">Projects</div>
+
+  <div class="project">
+    <div class="project-name">Restaurant Website</div>
+    <div>
+      <div class="project-desc">A fully responsive restaurant website featuring a menu showcase, an about section, and a clean reservation-style layout designed to give visitors an inviting first impression of the brand.</div>
+      <div class="project-tech">HTML · CSS · JavaScript</div>
+    </div>
+  </div>
+
+  <div class="project">
+  <div class="project">
+    <div class="project-name">Marsh Cardiology</div>
+    <div>
+      <div class="project-desc">A responsive cardiology website with a modern medical design, animated heartbeat visuals, services, testimonials, and an appointment system.</div>
+      <div class="project-tech">HTML · CSS · JavaScript · Node.js</div>
+      <a href="https://marsh-cardiology-1.onrender.com" target="_blank" rel="noopener noreferrer">Live Demo ↗</a>
+    </div>
+  </div>
+
+    <div class="project-name">Task Manager</div>
+    <div>
+      <div class="project-desc">A lightweight to-do list app with add, edit, complete, and delete functionality. Tasks persist using local storage so the list stays intact even after refreshing the page.</div>
+      <div class="project-tech">HTML · CSS · JavaScript</div>
+    </div>
+  </div>
+
+  <div class="project">
+    <div class="project-name">Weather Dashboard</div>
+    <div>
+      <div class="project-desc">A simple weather lookup tool that fetches live data from a public API and displays temperature, conditions, and forecast details in a clean, easy-to-read card layout.</div>
+      <div class="project-tech">HTML · CSS · JavaScript</div>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="section-label">Contact</div>
+  <p style="color: var(--text-dim); font-size: 1.05rem;">I'm open to new projects and opportunities. Feel free to get in touch.</p>
+  <a class="contact-email" href="mailto:anaxizick@gmail.com">anaxizick@gmail.com</a>
+  <div class="contact-social">
+    <a href="https://instagram.com/anaxizeck" target="_blank" rel="noopener noreferrer">Instagram — @anaxizeck</a>
+  </div>
+</section>
+
+<footer>&copy; 2026 ANAX. All rights reserved.</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+  const canvas = document.getElementById('bg-canvas');
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const isMobile = window.innerWidth < 640;
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 2000);
+  camera.position.z = isMobile ? 7 : 6;
+
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  const WHITE = 0xFFFFFF;
+  const SILVER = 0xB8B8C8;
+  const shapeRadius = isMobile ? 1.4 : 1.7;
+
+  // ---------- Deep star field (universe) ----------
+  function makeStarField(count, spread, size, opacity) {
+    const positions = new Float32Array(count * 3);
+    for (let i = 0; i < count * 3; i++) {
+      positions[i] = (Math.random() - 0.5) * spread;
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    const mat = new THREE.PointsMaterial({ color: WHITE, size, transparent: true, opacity, sizeAttenuation: true });
+    return new THREE.Points(geo, mat);
+  }
+
+  const starsFar = makeStarField(1200, 60, 0.045, 0.55);
+  const starsNear = makeStarField(500, 30, 0.07, 0.85);
+  scene.add(starsFar);
+  scene.add(starsNear);
+
+  // ---------- Digital grid plane (matrix) ----------
+  const gridSize = isMobile ? 14 : 20;
+  const gridDivisions = isMobile ? 18 : 24;
+  const grid = new THREE.GridHelper(gridSize, gridDivisions, 0xFFFFFF, 0xFFFFFF);
+  grid.material.transparent = true;
+  grid.material.opacity = 0.08;
+  grid.position.y = -3.2;
+  scene.add(grid);
+
+  const gridTop = new THREE.GridHelper(gridSize, gridDivisions, 0xFFFFFF, 0xFFFFFF);
+  gridTop.material.transparent = true;
+  gridTop.material.opacity = 0.05;
+  gridTop.position.y = 3.2;
+  scene.add(gridTop);
+
+  // ---------- Central morphing wireframe (per-section) ----------
+  const group = new THREE.Group();
+  scene.add(group);
+
+  const outerMat = new THREE.MeshBasicMaterial({ color: WHITE, wireframe: true, transparent: true, opacity: 0.85 });
+  const innerMat = new THREE.MeshBasicMaterial({ color: SILVER, wireframe: true, transparent: true, opacity: 0.3 });
+
+  let outerMesh = new THREE.Mesh(new THREE.IcosahedronGeometry(shapeRadius, 1), outerMat);
+  let innerMesh = new THREE.Mesh(new THREE.IcosahedronGeometry(shapeRadius * 0.66, 0), innerMat);
+  group.add(outerMesh);
+  group.add(innerMesh);
+
+  function geometryFor(sectionId) {
+    const r = shapeRadius;
+    switch (sectionId) {
+      case 'hero':
+        return [new THREE.IcosahedronGeometry(r, 1), new THREE.IcosahedronGeometry(r * 0.66, 0)];
+      case 'about':
+        return [new THREE.TorusGeometry(r * 0.85, r * 0.32, 8, 40), new THREE.OctahedronGeometry(r * 0.5, 0)];
+      case 'skills':
+        return [new THREE.DodecahedronGeometry(r, 0), new THREE.IcosahedronGeometry(r * 0.55, 0)];
+      case 'projects':
+        return [new THREE.TorusKnotGeometry(r * 0.6, r * 0.2, 100, 12), new THREE.OctahedronGeometry(r * 0.4, 0)];
+      case 'contact':
+        return [new THREE.OctahedronGeometry(r * 0.95, 0), new THREE.TorusGeometry(r * 0.5, r * 0.12, 6, 30)];
+      default:
+        return [new THREE.IcosahedronGeometry(r, 1), new THREE.IcosahedronGeometry(r * 0.66, 0)];
+    }
+  }
+
+  let currentSection = 'hero';
+  let morphing = false;
+
+  function morphTo(sectionId) {
+    if (sectionId === currentSection || morphing) return;
+    currentSection = sectionId;
+    morphing = true;
+
+    const duration = prefersReducedMotion ? 1 : 420;
+    const startTime = performance.now();
+
+    function shrink(now) {
+      const t = Math.min((now - startTime) / duration, 1);
+      group.scale.setScalar(Math.max(1 - t, 0.001));
+      if (t < 1 && !prefersReducedMotion) {
+        requestAnimationFrame(shrink);
+      } else {
+        swapGeometry(sectionId);
+      }
+    }
+
+    function swapGeometry(sectionId) {
+      const [outerGeo, innerGeo] = geometryFor(sectionId);
+      outerMesh.geometry.dispose();
+      innerMesh.geometry.dispose();
+      outerMesh.geometry = outerGeo;
+      innerMesh.geometry = innerGeo;
+
+      const growStart = performance.now();
+      function grow(now) {
+        const t = Math.min((now - growStart) / duration, 1);
+        group.scale.setScalar(Math.min(t, 1));
+        if (t < 1 && !prefersReducedMotion) {
+          requestAnimationFrame(grow);
+        } else {
+          group.scale.setScalar(1);
+          morphing = false;
+        }
+      }
+      if (prefersReducedMotion) {
+        group.scale.setScalar(1);
+        morphing = false;
+      } else {
+        requestAnimationFrame(grow);
+      }
+    }
+
+    if (prefersReducedMotion) {
+      swapGeometry(sectionId);
+    } else {
+      requestAnimationFrame(shrink);
+    }
+  }
+
+  // ---------- Occasional shooting star ----------
+  function spawnShootingStar() {
+    if (prefersReducedMotion) return;
+    const geo = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(0, 0, 0),
+      new THREE.Vector3(-1.2, -0.4, 0)
+    ]);
+    const mat = new THREE.LineBasicMaterial({ color: WHITE, transparent: true, opacity: 0.9 });
+    const line = new THREE.Line(geo, mat);
+
+    const startX = (Math.random() - 0.5) * 16 + 4;
+    const startY = Math.random() * 5 + 2;
+    const startZ = (Math.random() - 0.5) * 10 - 4;
+    line.position.set(startX, startY, startZ);
+    scene.add(line);
+
+    const travelDist = 9;
+    const start = performance.now();
+    const dur = 900 + Math.random() * 400;
+
+    function step(now) {
+      const t = (now - start) / dur;
+      if (t >= 1) {
+        scene.remove(line);
+        geo.dispose();
+        mat.dispose();
+        return;
+      }
+      line.position.x = startX - travelDist * t;
+      line.position.y = startY - travelDist * 0.35 * t;
+      mat.opacity = 0.9 * (1 - t);
+      requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  function scheduleShootingStar() {
+    const delay = 3000 + Math.random() * 5000;
+    setTimeout(() => {
+      spawnShootingStar();
+      scheduleShootingStar();
+    }, delay);
+  }
+  if (!prefersReducedMotion) scheduleShootingStar();
+
+  // ---------- Drag-to-rotate ----------
+  let isDragging = false;
+  let prevX = 0, prevY = 0;
+
+  function pointerDown(x, y) {
+    isDragging = true;
+    prevX = x;
+    prevY = y;
+  }
+  function pointerMove(x, y) {
+    if (!isDragging) return;
+    const dx = x - prevX;
+    const dy = y - prevY;
+    group.rotation.y += dx * 0.005;
+    group.rotation.x += dy * 0.005;
+    prevX = x;
+    prevY = y;
+  }
+  function pointerUp() { isDragging = false; }
+
+  canvas.addEventListener('mousedown', e => pointerDown(e.clientX, e.clientY));
+  window.addEventListener('mousemove', e => pointerMove(e.clientX, e.clientY));
+  window.addEventListener('mouseup', pointerUp);
+
+  canvas.addEventListener('touchstart', e => {
+    const t = e.touches[0];
+    pointerDown(t.clientX, t.clientY);
+  }, { passive: true });
+  canvas.addEventListener('touchmove', e => {
+    const t = e.touches[0];
+    pointerMove(t.clientX, t.clientY);
+  }, { passive: true });
+  canvas.addEventListener('touchend', pointerUp);
+
+  function animate() {
+    requestAnimationFrame(animate);
+    if (!isDragging && !prefersReducedMotion) {
+      group.rotation.y += 0.003;
+      group.rotation.x += 0.002;
+    }
+    if (!prefersReducedMotion) {
+      starsFar.rotation.y += 0.00015;
+      starsNear.rotation.y += 0.0003;
+      grid.rotation.y += 0.0006;
+      gridTop.rotation.y -= 0.0006;
+    }
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  window.addEventListener('orientationchange', () => {
+    setTimeout(() => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }, 200);
+  });
+
+  // Force nav links to scroll within this page only
+  document.querySelectorAll('nav a[href^="#"]').forEach(link => {
+    link.addEventListener('click', function (e) {
+      e.preventDefault();
+      const targetId = this.getAttribute('href').slice(1);
+      const target = document.getElementById(targetId);
+      if (target) {
+        target.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' });
+      }
+    });
+  });
+
+  // Watch which section is in view and trigger the 3D morph
+  const sections = document.querySelectorAll('section[id]');
+  const sectionObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
+        morphTo(entry.target.id);
+      }
+    });
+  }, { threshold: [0.5] });
+
+  sections.forEach(s => sectionObserver.observe(s));
+</script>
+
+</body>
+</html>
